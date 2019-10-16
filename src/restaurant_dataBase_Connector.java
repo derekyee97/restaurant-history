@@ -2,7 +2,7 @@ import java.sql.*;
 public class restaurant_dataBase_Connector 
 {
 	Connection connector; 
-	Statement query;
+	Statement statement;
 	public restaurant_dataBase_Connector()
 	{
 		try
@@ -10,7 +10,7 @@ public class restaurant_dataBase_Connector
 			Class.forName("com.mysql.jdbc.Driver");
 			//can change below to match your database.
 			connector=DriverManager.getConnection("jdbc:mysql://localhost:3306/restaurantapplication","root","");
-			query=connector.createStatement();
+			statement=connector.createStatement();
 		}
 		catch(Exception e)
 		{
@@ -18,16 +18,27 @@ public class restaurant_dataBase_Connector
 		}
 		
 	}
-	public ResultSet executeStatement(String sql)
+	public ResultSet query(String sql)
 	{
 		try
 		{
-			return query.executeQuery(sql);
+			return statement.executeQuery(sql);
 		}
 		catch(Exception e)
 		{
 			return null;
 		}
+	}
+	public void insert(String sql)
+	{
+		try 
+		{
+			statement.executeUpdate(sql);
+		} catch (SQLException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
 	}
 	public void closeConnection()
 	{
