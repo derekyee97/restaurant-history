@@ -1,0 +1,259 @@
+import javafx.*;
+import javafx.application.Application;
+import javafx.beans.binding.Bindings;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import java.sql.*;
+import java.util.Optional;
+
+public class restaurant_main extends Application {
+	public static void main(String[] args) {
+		launch(args);
+	}
+
+	// GLOBAL VARIABLES
+	BorderPane root = new BorderPane(); // will hold everything of our program
+	VBox mainMenu = new VBox(30);
+	VBox addVisit = new VBox(30);
+	VBox login = new VBox(30);
+	VBox register=new VBox(30); 
+	Button submitLoginB = new Button("Submit");
+	Button registerLoginB = new Button("Register");
+	Button submitRegister=new Button("Submit");
+	restaurant_dataBase_Connector connectDB = new restaurant_dataBase_Connector();
+	private ResultSet currUser;
+
+	public void start(Stage primaryStage) throws Exception {
+		createLoginMenu(login);
+		
+		createAddVisitMenu(addVisit);
+
+		root.setCenter(login);
+		root.setPadding(new Insets(10)); // set borders within root sectionsn
+		login.setAlignment(Pos.CENTER);
+		Scene myScene = new Scene(root, 1200, 400);
+
+		primaryStage.setScene(myScene);
+		primaryStage.setTitle("Restaurant History");
+		// primaryStage.setFullScreen(true);
+		primaryStage.show();
+
+		// BUTTON ACTION EVENTS
+
+	}
+
+	public void createMainMenu(VBox start) {
+		Label welcome=new Label();
+		try {
+			welcome = new Label("Welcome to "+currUser.getString("firstName")+"'s Restaurant History");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		start.setAlignment(Pos.CENTER);
+		Label selectL = new Label("Please select a button to perform the following actions");
+		VBox startSelections = new VBox(10);
+		startSelections.setAlignment(Pos.CENTER);
+		Button viewB = new Button("View Reviewed Places/Pics");
+		Button addB = new Button("Add new visit");
+		Button addPic = new Button("Add food pic");
+
+		startSelections.getChildren().addAll(viewB, addB, addPic);
+		start.getChildren().addAll(welcome, selectL, startSelections);
+
+		addB.setOnAction(event -> {
+			root.setCenter(addVisit);
+		});
+	}
+
+	// menu for creating new restaurant reviews/comments
+	public void createAddVisitMenu(VBox visit) {
+		GridPane menu = new GridPane();
+		HBox radioBoxes = new HBox(10);
+		Label restL = new Label("Restaurant Name: ");
+		TextField restField = new TextField("Please enter the restaurant name here");
+
+		Label rateL = new Label("Please check a rating where 1 is the worst, 5 is the best: ");
+		RadioButton one = new RadioButton("1");
+		RadioButton two = new RadioButton("2");
+		RadioButton three = new RadioButton("3");
+		RadioButton four = new RadioButton("4");
+		RadioButton five = new RadioButton("5");
+		ToggleGroup radioBoxTog = new ToggleGroup();
+		
+		one.setToggleGroup(radioBoxTog);
+		two.setToggleGroup(radioBoxTog);
+		three.setToggleGroup(radioBoxTog);
+		four.setToggleGroup(radioBoxTog);
+		five.setToggleGroup(radioBoxTog);
+		radioBoxes.getChildren().addAll(one, two, three, four, five);
+
+		Label commentL = new Label("Please enter comments: ");
+		Label charCount=new Label("0/500"); 
+		TextArea commentField = new TextArea("Max 500 chars");
+		VBox commentFieldBox=new VBox(commentField,charCount);
+		charCount.textProperty().bind(Bindings.length(commentField.textProperty()).asString("String Length: %d"+"/500")); //will show char length of text area as type
+		commentField.setWrapText(true);  //alows text to go to new line when reach edge
+		commentField.setTextFormatter(new TextFormatter<String>(change ->  //set max char limit to 500
+         change.getControlNewText().length() <= 500 ? change : null));
+
+		menu.add(restL, 0, 0);
+		menu.add(restField, 1, 0);
+		menu.add(rateL, 0, 1);
+		menu.add(radioBoxes, 1, 1);
+		menu.add(commentL, 0, 2);
+		menu.add(commentFieldBox, 1, 2);
+		menu.setPadding(new Insets(10));
+		
+		Button submitReview=new Button("Submit"); 
+		HBox submitBox=new HBox(10,submitReview); 
+		
+		
+		
+		submitBox.setAlignment(Pos.CENTER);submitBox.setPadding(new Insets(20));
+		visit.getChildren().addAll(menu,submitBox);
+		menu.setAlignment(Pos.CENTER);
+		visit.setAlignment(Pos.CENTER);
+		menu.setPadding(new Insets(20));
+		menu.setHgap(10); // horizontal gap in pixels
+		menu.setVgap(10);
+	}
+
+	// creation of login allows user to enter their account information
+	public void createLoginMenu(VBox login) {
+		login.setAlignment(Pos.CENTER);
+		Label welcomeL = new Label("Welcome to the restaurant history tracker");
+		GridPane loginHolder = new GridPane();
+		loginHolder.setHgap(10);
+		loginHolder.setVgap(10);
+		loginHolder.setPadding(new Insets(20));
+		loginHolder.setAlignment(Pos.CENTER);
+
+		Label loginL = new Label("Please enter the required information");
+		Label userL = new Label("Please enter your email here: ");
+		TextField userField = new TextField("enter email");
+		Label passL = new Label("Please enter your password here: ");
+		PasswordField passField = new PasswordField();
+		passField.setPromptText("enter password");
+		loginHolder.add(userL, 0, 0);
+		loginHolder.add(userField, 1, 0);
+		loginHolder.add(passL, 0, 1);
+		loginHolder.add(passField, 1, 1);
+
+		HBox loginButtons = new HBox(10);
+		loginButtons.setAlignment(Pos.CENTER);
+		submitLoginB.setMinSize(Button.USE_PREF_SIZE, Button.USE_PREF_SIZE);
+		registerLoginB.setMinSize(Button.USE_PREF_SIZE, Button.USE_PREF_SIZE);
+		final Pane buttonGap = new Pane();
+		buttonGap.setMinSize(5, 1);
+		loginButtons.getChildren().addAll(submitLoginB, buttonGap, registerLoginB);
+		login.getChildren().addAll(welcomeL, loginL, loginHolder, loginButtons);
+
+		// EVENT HANDLERS FOR LOGIN BUTTONS
+		submitLoginB.setOnAction(event -> {
+			String sqlStatement = "Select * from login where  email='" + userField.getText() + "' and password='"
+					+ passField.getText() + "'";
+			System.out.println(sqlStatement);
+			currUser = connectDB.query(sqlStatement);
+			try {
+				if (currUser.next()) {
+					Alert alert = new Alert(AlertType.CONFIRMATION);
+					alert.setTitle("Login successfull");
+					alert.setContentText("LOGIN SUCCESSFULL...");
+					alert.showAndWait();
+					createMainMenu(mainMenu);                
+					root.setCenter(mainMenu);
+				} else {
+					Alert alert = new Alert(AlertType.CONFIRMATION);
+					alert.setTitle("Login unsuccessfull");
+					alert.setContentText("Username or password is incorrect. Try again.");
+					alert.setHeaderText("UNSUCCESSFULL");
+					alert.showAndWait();
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		});
+		registerLoginB.setOnAction(event->
+		{
+			createRegisterMenu(register);
+			root.setCenter(register);
+			
+			
+		});
+		
+	}
+	public void createRegisterMenu(VBox register)
+	{
+		Label registerL=new Label("Please enter the required information below, and hit the submit button.");
+		GridPane registerBox=new GridPane();
+		registerBox.setVgap(10);registerBox.setHgap(10);
+		registerBox.setPadding(new Insets(10));
+		Label emailL=new Label("Enter email address: ");
+		TextField emailBox=new TextField("email...");
+		Label passL=new Label("Enter password: ");
+		PasswordField passBox=new PasswordField();
+		passBox.setPromptText("password...");
+		Label firstNameL=new Label("Enter first name: ");
+		TextField firstNameBox=new TextField("first name...");
+		Label lastNameBoxL= new Label("Enter last name: ");
+		TextField lastNameBox=new TextField("last name...");
+		registerBox.add(emailL, 0, 0);registerBox.add(emailBox, 1, 0);
+		registerBox.add(passL, 0, 1);registerBox.add(passBox, 1, 1);
+		registerBox.add(firstNameL, 0, 2);registerBox.add(firstNameBox, 1, 2);
+		registerBox.add(lastNameBoxL, 0, 3);registerBox.add(lastNameBox, 1, 3);
+		register.getChildren().addAll(registerL,registerBox,submitRegister);
+		
+		submitRegister.setOnAction(event->
+		{
+			String sql="Select email FROM login WHERE email='"+emailBox.getText()+"'";
+			ResultSet result=connectDB.query(sql); 
+			
+			try
+			{
+				if(result.next()==false)
+				{
+					sql="INSERT INTO login(email,password,firstName,lastName) VALUES ('"+emailBox.getText()+"','"+passBox.getText()+"','"+firstNameBox.getText()+"','"+lastNameBox.getText()+"');";
+					
+					//connectDB.executeStatement(query);
+					connectDB.insert(sql);
+					Alert success=new Alert(AlertType.INFORMATION);
+					success.setContentText("Account creation successfull");
+					success.showAndWait(); 
+					root.setCenter(login);
+				}
+				else
+				{
+					Alert exists=new Alert(AlertType.INFORMATION);
+					exists.setContentText("Email address is already in use!");
+					exists.showAndWait();
+				}
+			} catch (SQLException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		});
+	}
+}
