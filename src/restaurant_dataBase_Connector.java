@@ -29,7 +29,7 @@ public class restaurant_dataBase_Connector
 			return null;
 		}
 	}
-	public void insert(String sql)
+	public void executeStatement(String sql)
 	{
 		try 
 		{
@@ -40,6 +40,7 @@ public class restaurant_dataBase_Connector
 			e.printStackTrace();
 		} 
 	}
+	
 	public void closeConnection()
 	{
 		try 
@@ -51,4 +52,5 @@ public class restaurant_dataBase_Connector
 			e.printStackTrace();
 		}
 	}
+	
 }

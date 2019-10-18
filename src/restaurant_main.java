@@ -1,6 +1,8 @@
 import javafx.*;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -15,6 +17,7 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
+import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -36,6 +39,7 @@ public class restaurant_main extends Application {
 	VBox addVisit = new VBox(30);
 	VBox login = new VBox(30);
 	VBox register=new VBox(30); 
+	VBox reviewedMenu=new VBox(30);
 	Button submitLoginB = new Button("Submit");
 	Button registerLoginB = new Button("Register");
 	Button submitRegister=new Button("Submit");
@@ -99,12 +103,19 @@ public class restaurant_main extends Application {
 		RadioButton four = new RadioButton("4");
 		RadioButton five = new RadioButton("5");
 		ToggleGroup radioBoxTog = new ToggleGroup();
-		
+		int[] rating= {0}; 
 		one.setToggleGroup(radioBoxTog);
+		one.setOnAction(e->{rating[0]=1;});
 		two.setToggleGroup(radioBoxTog);
+		two.setOnAction(e->{rating[0]=2;});
 		three.setToggleGroup(radioBoxTog);
+		three.setOnAction(e->{rating[0]=3;});
 		four.setToggleGroup(radioBoxTog);
+		four.setOnAction(e->{rating[0]=4;});
 		five.setToggleGroup(radioBoxTog);
+		five.setOnAction(e->{rating[0]=5;});  
+		       
+		
 		radioBoxes.getChildren().addAll(one, two, three, four, five);
 
 		Label commentL = new Label("Please enter comments: ");
@@ -136,6 +147,24 @@ public class restaurant_main extends Application {
 		menu.setPadding(new Insets(20));
 		menu.setHgap(10); // horizontal gap in pixels
 		menu.setVgap(10);
+		submitReview.setOnAction(event->{
+			try 
+			{
+				String sql="INSERT INTO reviews(userEmail,Rating,Comments,Tags) VALUES ('"+currUser.getString("email")+"',"+
+							rating[0]+",'"+commentField.getText()+"','"+"');";
+				System.out.println(sql);
+				connectDB.executeStatement(sql);
+				Alert successA=new Alert(AlertType.INFORMATION);
+				successA.setTitle("Success");successA.setContentText("The review was successfully uploaded!"); 
+				successA.showAndWait(); 
+				root.setCenter(mainMenu);
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+			
+		});
 	}
 
 	// creation of login allows user to enter their account information
@@ -172,7 +201,7 @@ public class restaurant_main extends Application {
 		submitLoginB.setOnAction(event -> {
 			String sqlStatement = "Select * from login where  email='" + userField.getText() + "' and password='"
 					+ passField.getText() + "'";
-			System.out.println(sqlStatement);
+			
 			currUser = connectDB.query(sqlStatement);
 			try {
 				if (currUser.next()) {
@@ -236,7 +265,7 @@ public class restaurant_main extends Application {
 					sql="INSERT INTO login(email,password,firstName,lastName) VALUES ('"+emailBox.getText()+"','"+passBox.getText()+"','"+firstNameBox.getText()+"','"+lastNameBox.getText()+"');";
 					
 					//connectDB.executeStatement(query);
-					connectDB.insert(sql);
+					connectDB.executeStatement(sql);
 					Alert success=new Alert(AlertType.INFORMATION);
 					success.setContentText("Account creation successfull");
 					success.showAndWait(); 
