@@ -14,6 +14,8 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
@@ -90,7 +92,8 @@ public class restaurant_main extends Application {
 	}
 
 	// menu for creating new restaurant reviews/comments
-	public void createAddVisitMenu(VBox visit) {
+	public void createAddVisitMenu(VBox visit) 
+	{
 		GridPane menu = new GridPane();
 		HBox radioBoxes = new HBox(10);
 		Label restL = new Label("Restaurant Name: ");
@@ -150,9 +153,8 @@ public class restaurant_main extends Application {
 		submitReview.setOnAction(event->{
 			try 
 			{
-				String sql="INSERT INTO reviews(userEmail,Rating,Comments,Tags) VALUES ('"+currUser.getString("email")+"',"+
-							rating[0]+",'"+commentField.getText()+"','"+"');";
-				System.out.println(sql);
+				String sql="INSERT INTO reviews(userEmail,Rating,Comments,Tags,restaurantName) VALUES ('"+currUser.getString("email")+"',"+
+							rating[0]+",'"+commentField.getText()+"','"+"','"+restField.getText()+"');";
 				connectDB.executeStatement(sql);
 				Alert successA=new Alert(AlertType.INFORMATION);
 				successA.setTitle("Success");successA.setContentText("The review was successfully uploaded!"); 
@@ -199,19 +201,22 @@ public class restaurant_main extends Application {
 
 		// EVENT HANDLERS FOR LOGIN BUTTONS
 		submitLoginB.setOnAction(event -> {
-			String sqlStatement = "Select * from login where  email='" + userField.getText() + "' and password='"
+			String sqlStatement = "Select * from login where  email='" + userField.getText() + "' and password='"  //check if info is in database 
 					+ passField.getText() + "'";
 			
 			currUser = connectDB.query(sqlStatement);
 			try {
-				if (currUser.next()) {
+				if (currUser.next()) 
+				{
 					Alert alert = new Alert(AlertType.CONFIRMATION);
-					alert.setTitle("Login successfull");
+					alert.setTitle("Login successfull");                   //if found in database then account is good 
 					alert.setContentText("LOGIN SUCCESSFULL...");
 					alert.showAndWait();
 					createMainMenu(mainMenu);                
 					root.setCenter(mainMenu);
-				} else {
+				} 
+				else //otherwise we let user know account not in DB
+				{ 
 					Alert alert = new Alert(AlertType.CONFIRMATION);
 					alert.setTitle("Login unsuccessfull");
 					alert.setContentText("Username or password is incorrect. Try again.");
@@ -232,6 +237,7 @@ public class restaurant_main extends Application {
 		});
 		
 	}
+	//creates menu for creating new account 
 	public void createRegisterMenu(VBox register)
 	{
 		Label registerL=new Label("Please enter the required information below, and hit the submit button.");
@@ -253,14 +259,14 @@ public class restaurant_main extends Application {
 		registerBox.add(lastNameBoxL, 0, 3);registerBox.add(lastNameBox, 1, 3);
 		register.getChildren().addAll(registerL,registerBox,submitRegister);
 		
-		submitRegister.setOnAction(event->
+		submitRegister.setOnAction(event->  //when submit pressed
 		{
-			String sql="Select email FROM login WHERE email='"+emailBox.getText()+"'";
+			String sql="Select email FROM login WHERE email='"+emailBox.getText()+"'"; //check if email exists in account
 			ResultSet result=connectDB.query(sql); 
 			
 			try
 			{
-				if(result.next()==false)
+				if(result.next()==false) //if it does not then we let user create account
 				{
 					sql="INSERT INTO login(email,password,firstName,lastName) VALUES ('"+emailBox.getText()+"','"+passBox.getText()+"','"+firstNameBox.getText()+"','"+lastNameBox.getText()+"');";
 					
@@ -271,7 +277,7 @@ public class restaurant_main extends Application {
 					success.showAndWait(); 
 					root.setCenter(login);
 				}
-				else
+				else  //otherwise we reject email and no account created
 				{
 					Alert exists=new Alert(AlertType.INFORMATION);
 					exists.setContentText("Email address is already in use!");
@@ -285,4 +291,37 @@ public class restaurant_main extends Application {
 			
 		});
 	}
+	public void createReviewedMenu(VBox reviewedContainer)
+	{
+		Label reviewL=new Label("Your Reviews: "); 
+		GridPane reviewHolder=new GridPane(); 
+		reviewHolder.setHgap(10);reviewHolder.setVgap(10);
+		reviewHolder.setPadding(new Insets(20));
+		reviewHolder.setAlignment(Pos.CENTER);
+		try {
+			String queryUserReviews="Select * FROM reviews where userEmail="+currUser.getString("email");
+			ResultSet reviews=connectDB.query(queryUserReviews); 
+			int counter=0; 
+			int row=0;
+			Label restaurantNameReview;
+			while(reviews.next()) 
+			{
+				restaurantNameReview=new Label(reviews.getString("restaurantName"));
+				reviewHolder.add(restaurantNameReview, row, counter);
+				counter++;
+				if(counter==3)
+				{
+					row++;
+					counter=0; 
+				}
+				
+			}
+			reviewedContainer.getChildren().addAll(reviewL,reviewHolder);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
 }
