@@ -47,6 +47,7 @@ public class restaurant_main extends Application {
 	Button submitRegister=new Button("Submit");
 	restaurant_dataBase_Connector connectDB = new restaurant_dataBase_Connector();
 	private ResultSet currUser;
+	private String currEmail,currUserName;
 
 	public void start(Stage primaryStage) throws Exception {
 		createLoginMenu(login);
@@ -68,13 +69,7 @@ public class restaurant_main extends Application {
 	}
 
 	public void createMainMenu(VBox start) {
-		Label welcome=new Label();
-		try {
-			welcome = new Label("Welcome to "+currUser.getString("firstName")+"'s Restaurant History");
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Label welcome=new Label("Welcome to "+currUserName+"'s Restaurant History");;
 		start.setAlignment(Pos.CENTER);
 		Label selectL = new Label("Please select a button to perform the following actions");
 		VBox startSelections = new VBox(10);
@@ -88,6 +83,11 @@ public class restaurant_main extends Application {
 
 		addB.setOnAction(event -> {
 			root.setCenter(addVisit);
+		});
+		viewB.setOnAction(event->{
+			reviewedMenu=new VBox(30);
+			createReviewedMenu(reviewedMenu);
+			root.setCenter(reviewedMenu);
 		});
 	}
 
@@ -153,12 +153,17 @@ public class restaurant_main extends Application {
 		submitReview.setOnAction(event->{
 			try 
 			{
-				String sql="INSERT INTO reviews(userEmail,Rating,Comments,Tags,restaurantName) VALUES ('"+currUser.getString("email")+"',"+
+
+				
+				String sql="INSERT INTO reviews(userEmail,Rating,Comments,Tags,restaurantName) VALUES ('"+currEmail+"',"+
 							rating[0]+",'"+commentField.getText()+"','"+"','"+restField.getText()+"');";
 				connectDB.executeStatement(sql);
+				
 				Alert successA=new Alert(AlertType.INFORMATION);
 				successA.setTitle("Success");successA.setContentText("The review was successfully uploaded!"); 
 				successA.showAndWait(); 
+				restField.setText("Please enter the restaurant name here");
+				commentField.setText("Max 500 chars");
 				root.setCenter(mainMenu);
 			}
 			catch(Exception e)
@@ -212,6 +217,8 @@ public class restaurant_main extends Application {
 					alert.setTitle("Login successfull");                   //if found in database then account is good 
 					alert.setContentText("LOGIN SUCCESSFULL...");
 					alert.showAndWait();
+					currEmail=currUser.getString("email");
+					currUserName=currUser.getString("firstName");
 					createMainMenu(mainMenu);                
 					root.setCenter(mainMenu);
 				} 
@@ -299,7 +306,7 @@ public class restaurant_main extends Application {
 		reviewHolder.setPadding(new Insets(20));
 		reviewHolder.setAlignment(Pos.CENTER);
 		try {
-			String queryUserReviews="Select * FROM reviews where userEmail="+currUser.getString("email");
+			String queryUserReviews="Select * FROM reviews where userEmail= '"+currEmail+"'";
 			ResultSet reviews=connectDB.query(queryUserReviews); 
 			int counter=0; 
 			int row=0;
