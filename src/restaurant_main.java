@@ -28,6 +28,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Optional;
 
 public class restaurant_main extends Application {
@@ -305,15 +306,20 @@ public class restaurant_main extends Application {
 		reviewHolder.setHgap(10);reviewHolder.setVgap(10);
 		reviewHolder.setPadding(new Insets(20));
 		reviewHolder.setAlignment(Pos.CENTER);
+		
 		try {
 			String queryUserReviews="Select * FROM reviews where userEmail= '"+currEmail+"'";
 			ResultSet reviews=connectDB.query(queryUserReviews); 
 			int counter=0; 
 			int row=0;
-			Label restaurantNameReview;
+			Button restaurantNameReview;
 			while(reviews.next()) 
 			{
-				restaurantNameReview=new Label(reviews.getString("restaurantName"));
+				restaurantNameReview=new Button(reviews.getString("restaurantName"));
+				restaurantNameReview.setOnAction(event->{
+					Alert alert = new Alert(AlertType.CONFIRMATION);
+					alert.setContentText("CLICKED :)");
+				});
 				reviewHolder.add(restaurantNameReview, row, counter);
 				counter++;
 				if(counter==3)
@@ -323,6 +329,7 @@ public class restaurant_main extends Application {
 				}
 				
 			}
+			
 			reviewedContainer.getChildren().addAll(reviewL,reviewHolder);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
