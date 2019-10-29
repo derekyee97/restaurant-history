@@ -43,6 +43,7 @@ public class restaurant_main extends Application {
 	VBox login = new VBox(30);
 	VBox register=new VBox(30); 
 	VBox reviewedMenu=new VBox(30);
+	VBox currReviewPage=new VBox(30); 
 	Button submitLoginB = new Button("Submit");
 	Button registerLoginB = new Button("Register");
 	Button submitRegister=new Button("Submit");
@@ -316,10 +317,7 @@ public class restaurant_main extends Application {
 			while(reviews.next()) 
 			{
 				restaurantNameReview=new Button(reviews.getString("restaurantName"));
-				restaurantNameReview.setOnAction(event->{
-					Alert alert = new Alert(AlertType.CONFIRMATION);
-					alert.setContentText("CLICKED :)");
-				});
+				
 				reviewHolder.add(restaurantNameReview, row, counter);
 				counter++;
 				if(counter==3)
@@ -327,7 +325,9 @@ public class restaurant_main extends Application {
 					row++;
 					counter=0; 
 				}
-				
+				restaurantNameReview.setOnAction(event->{  //create review page and set root center to curr review
+					createCurrReviewPage(((Button)event.getSource()).getText());
+				});
 			}
 			
 			reviewedContainer.getChildren().addAll(reviewL,reviewHolder);
@@ -336,6 +336,42 @@ public class restaurant_main extends Application {
 			e.printStackTrace();
 		}
 		
+	}
+	public void createCurrReviewPage(String restaurantName)
+	{
+		//System.out.println("HI "+restaurantName);
+		currReviewPage=new VBox(30); 
+		Button backToReviewsB=new Button("Back to Reviews menu"); 
+		Button editB=new Button("Edit"); 
+		GridPane reviewInfoHolder=new GridPane(); 
+		Label restaurantL=new Label(currUserName+"'s review for: "+restaurantName);
+		Label ratingScore=new Label("Rating Given: ");
+		Label numScore=new Label();
+		String sql="SELECT * FROM reviews WHERE reviews.userEmail='"+currEmail+"' AND reviews.restaurantName='"+restaurantName+"';";
+		Label textAreaL=new Label("Comments: ");
+		TextArea comments=new TextArea(); 
+		comments.setWrapText(true);
+		System.out.println(sql);
+		ResultSet result=connectDB.query(sql); 
+	
+		
+		try
+		{
+			if(result.next()) 
+			{
+				numScore.setText(Integer.toString(result.getInt("rating")));
+				comments.setText(result.getString("comments"));
+				reviewInfoHolder.add(ratingScore, 0, 0);reviewInfoHolder.add(numScore, 1, 0);
+				reviewInfoHolder.add(textAreaL, 0, 1);reviewInfoHolder.add(comments, 1, 1);
+				currReviewPage.getChildren().addAll(restaurantL,reviewInfoHolder,backToReviewsB,editB);
+				root.setCenter(currReviewPage);
+			}
+			
+		}
+		catch(SQLException e)
+		{
+			e.printStackTrace(); 
+		}
 	}
 	
 }

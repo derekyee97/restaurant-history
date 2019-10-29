@@ -26,6 +26,7 @@ public class restaurant_dataBase_Connector
 		}
 		catch(Exception e)
 		{
+			System.out.println("HERE");
 			return null;
 		}
 	}
