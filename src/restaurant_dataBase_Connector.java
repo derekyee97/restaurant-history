@@ -7,7 +7,7 @@ public class restaurant_dataBase_Connector
 	{
 		try
 		{
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName("com.mysql.jdbc.Driver"); //
 			//can change below to match your database.
 			connector=DriverManager.getConnection("jdbc:mysql://localhost:3306/restaurantapplication","root","");
 			statement=connector.createStatement();
