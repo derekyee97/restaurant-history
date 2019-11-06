@@ -44,9 +44,12 @@ public class restaurant_main extends Application {
 	VBox register=new VBox(30); 
 	VBox reviewedMenu=new VBox(30);
 	VBox currReviewPage=new VBox(30); 
+	VBox addPicture=new VBox(30); 
+	VBox editReview=new VBox(30); 
 	Button submitLoginB = new Button("Submit");
 	Button registerLoginB = new Button("Register");
 	Button submitRegister=new Button("Submit");
+	Button backToMainB=new Button("Back to Main Menu");
 	restaurant_dataBase_Connector connectDB = new restaurant_dataBase_Connector();
 	private ResultSet currUser;
 	private String currEmail,currUserName;
@@ -85,11 +88,16 @@ public class restaurant_main extends Application {
 
 		addB.setOnAction(event -> {
 			root.setCenter(addVisit);
+			root.setTop(backToMainB);
 		});
 		viewB.setOnAction(event->{
 			reviewedMenu=new VBox(30);
 			createReviewedMenu(reviewedMenu);
 			root.setCenter(reviewedMenu);
+		});
+		backToMainB.setOnAction(event->{
+			root.setCenter(mainMenu);
+			root.setTop(null);
 		});
 	}
 
@@ -102,6 +110,7 @@ public class restaurant_main extends Application {
 		TextField restField = new TextField("Please enter the restaurant name here");
 
 		Label rateL = new Label("Please check a rating where 1 is the worst, 5 is the best: ");
+		Button backB=new Button("Cancel"); 
 		RadioButton one = new RadioButton("1");
 		RadioButton two = new RadioButton("2");
 		RadioButton three = new RadioButton("3");
@@ -152,6 +161,7 @@ public class restaurant_main extends Application {
 		menu.setPadding(new Insets(20));
 		menu.setHgap(10); // horizontal gap in pixels
 		menu.setVgap(10);
+		
 		submitReview.setOnAction(event->{
 			try 
 			{
@@ -167,12 +177,16 @@ public class restaurant_main extends Application {
 				restField.setText("Please enter the restaurant name here");
 				commentField.setText("Max 500 chars");
 				root.setCenter(mainMenu);
+				
 			}
 			catch(Exception e)
 			{
 				e.printStackTrace();
 			}
 			
+		});
+		backB.setOnAction(event->{
+			root.setCenter(mainMenu);
 		});
 	}
 
@@ -303,6 +317,7 @@ public class restaurant_main extends Application {
 	public void createReviewedMenu(VBox reviewedContainer)
 	{
 		Label reviewL=new Label("Your Reviews: "); 
+		Button backMainB=new Button("Back to Main Menu");
 		GridPane reviewHolder=new GridPane(); 
 		reviewHolder.setHgap(10);reviewHolder.setVgap(10);
 		reviewHolder.setPadding(new Insets(20));
@@ -331,10 +346,16 @@ public class restaurant_main extends Application {
 			}
 			
 			reviewedContainer.getChildren().addAll(reviewL,reviewHolder);
+			root.setTop(backMainB);
+			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		backMainB.setOnAction(event->{
+			root.setCenter(mainMenu);
+			root.setTop(null);
+		});
 		
 	}
 	public void createCurrReviewPage(String restaurantName)
@@ -344,6 +365,8 @@ public class restaurant_main extends Application {
 		Button backToReviewsB=new Button("Back to Reviews menu"); 
 		Button editB=new Button("Edit"); 
 		Button addImage=new Button("Add Image");
+		Button removeB=new Button("Remove review"); 
+		Button addPicture=new Button("Add Pictures"); 
 		HBox buttonHolder=new HBox(10,backToReviewsB,editB,addImage); 
 		buttonHolder.setAlignment(Pos.CENTER);buttonHolder.setPadding(new Insets(10));
 		GridPane reviewInfoHolder=new GridPane(); 
@@ -357,7 +380,8 @@ public class restaurant_main extends Application {
 		TextArea comments=new TextArea(); comments.setDisable(true);
 		comments.setWrapText(true);
 		ResultSet result=connectDB.query(sql); 
-	
+		String removeSql="DELETE FROM Reviews WHERE Reviews.RestaurantName='"+restaurantName+"';";
+		root.setBottom(buttonHolder);
 		
 		try
 		{
@@ -379,7 +403,24 @@ public class restaurant_main extends Application {
 		}
 		backToReviewsB.setOnAction(event->{
 			root.setCenter(reviewedMenu);
+			root.setBottom(null);
+		});
+		removeB.setOnAction(event->{
+			connectDB.executeStatement(removeSql);
+			root.setBottom(null);
+			reviewedMenu=new VBox(30);
+			createReviewedMenu(reviewedMenu);
+			root.setCenter(reviewedMenu);
+		});
+		editB.setOnAction(event->{
+			//create 
 		});
 	}
+	public void createEditMenu(String restaurant)
+	{
+		editReview=new VBox(30); 
+		
+	}
+	
 	
 }
