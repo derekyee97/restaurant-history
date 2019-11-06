@@ -343,15 +343,19 @@ public class restaurant_main extends Application {
 		currReviewPage=new VBox(30); 
 		Button backToReviewsB=new Button("Back to Reviews menu"); 
 		Button editB=new Button("Edit"); 
+		Button addImage=new Button("Add Image");
+		HBox buttonHolder=new HBox(10,backToReviewsB,editB,addImage); 
+		buttonHolder.setAlignment(Pos.CENTER);buttonHolder.setPadding(new Insets(10));
 		GridPane reviewInfoHolder=new GridPane(); 
+		reviewInfoHolder.setVgap(10);reviewInfoHolder.setHgap(10);
+		reviewInfoHolder.setPadding(new Insets(10));
 		Label restaurantL=new Label(currUserName+"'s review for: "+restaurantName);
 		Label ratingScore=new Label("Rating Given: ");
 		Label numScore=new Label();
 		String sql="SELECT * FROM reviews WHERE reviews.userEmail='"+currEmail+"' AND reviews.restaurantName='"+restaurantName+"';";
 		Label textAreaL=new Label("Comments: ");
-		TextArea comments=new TextArea(); 
+		TextArea comments=new TextArea(); comments.setDisable(true);
 		comments.setWrapText(true);
-		System.out.println(sql);
 		ResultSet result=connectDB.query(sql); 
 	
 		
@@ -363,15 +367,19 @@ public class restaurant_main extends Application {
 				comments.setText(result.getString("comments"));
 				reviewInfoHolder.add(ratingScore, 0, 0);reviewInfoHolder.add(numScore, 1, 0);
 				reviewInfoHolder.add(textAreaL, 0, 1);reviewInfoHolder.add(comments, 1, 1);
-				currReviewPage.getChildren().addAll(restaurantL,reviewInfoHolder,backToReviewsB,editB);
+				currReviewPage.getChildren().addAll(restaurantL,reviewInfoHolder,buttonHolder);
 				root.setCenter(currReviewPage);
 			}
 			
 		}
+		
 		catch(SQLException e)
 		{
 			e.printStackTrace(); 
 		}
+		backToReviewsB.setOnAction(event->{
+			root.setCenter(reviewedMenu);
+		});
 	}
 	
 }
