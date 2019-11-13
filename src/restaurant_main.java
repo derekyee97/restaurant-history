@@ -26,7 +26,12 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -50,6 +55,7 @@ public class restaurant_main extends Application {
 	Button registerLoginB = new Button("Register");
 	Button submitRegister=new Button("Submit");
 	Button backToMainB=new Button("Back to Main Menu");
+	Stage primary;
 	restaurant_dataBase_Connector connectDB = new restaurant_dataBase_Connector();
 	private ResultSet currUser;
 	private String currEmail,currUserName;
@@ -63,7 +69,7 @@ public class restaurant_main extends Application {
 		root.setPadding(new Insets(10)); // set borders within root sectionsn
 		login.setAlignment(Pos.CENTER);
 		Scene myScene = new Scene(root, 1200, 400);
-
+		primary=primaryStage;
 		primaryStage.setScene(myScene);
 		primaryStage.setTitle("Restaurant History");
 		// primaryStage.setFullScreen(true);
@@ -412,6 +418,27 @@ public class restaurant_main extends Application {
 			reviewedMenu=new VBox(30);
 			createReviewedMenu(reviewedMenu);
 			root.setCenter(reviewedMenu);
+		});
+		addImage.setOnAction(event->{
+			FileChooser fileChooser = new FileChooser();
+			FileChooser.ExtensionFilter JPGFilter = new FileChooser.ExtensionFilter("JPG files (*.jpg)", "*.JPG");
+            FileChooser.ExtensionFilter PNGFilter = new FileChooser.ExtensionFilter("PNG files (*.png)", "*.PNG");
+            fileChooser.getExtensionFilters().addAll(JPGFilter,PNGFilter);
+        	File imageFile=fileChooser.showOpenDialog(primary);
+        	try {
+				PreparedStatement ps=connectDB.connector.prepareStatement("INSERT INTO food_pictures (userEmail,restaurantName,image) VALUES(?,?,?)");
+				ps.setString(1, currEmail);
+				ps.setString(2, restaurantName);
+				FileInputStream stream=new FileInputStream(imageFile);
+				ps.setBinaryStream(3,stream,(int)imageFile.length());
+				ps.executeUpdate();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		});
 //		editB.setOnAction(event->{ //naviage to edit menu
 //			createEditMenu(restaurantName);
