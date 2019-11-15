@@ -387,8 +387,14 @@ public class restaurant_main extends Application {
 		TextArea comments=new TextArea(); comments.setDisable(true);
 		comments.setWrapText(true);
 		ResultSet result=connectDB.query(sql); 
+		sql="SELECT * FROM food_pictures WHERE food_pictures.userEmail='"+currEmail+"' AND reviews.restaurantName='"+restaurantName+"';";
+		ResultSet images=connectDB.query(sql);
 		String removeSql="DELETE FROM Reviews WHERE Reviews.RestaurantName='"+restaurantName+"';";
 		root.setBottom(buttonHolder);
+		
+		GridPane imageHolder=new GridPane(); 
+		imageHolder.setVgap(10);imageHolder.setHgap(10);
+		imageHolder.setPadding(new Insets(10));
 		
 		try
 		{
@@ -399,7 +405,7 @@ public class restaurant_main extends Application {
 				reviewInfoHolder.add(ratingScore, 0, 0);reviewInfoHolder.add(numScore, 1, 0);
 				reviewInfoHolder.add(textAreaL, 0, 1);reviewInfoHolder.add(comments, 1, 1);
 				currReviewPage.getChildren().addAll(restaurantL,reviewInfoHolder,buttonHolder);
-				root.setCenter(currReviewPage);
+				//root.setCenter(currReviewPage);
 			}
 			
 		}
