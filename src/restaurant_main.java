@@ -21,6 +21,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -32,6 +34,10 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -387,15 +393,10 @@ public class restaurant_main extends Application {
 		TextArea comments=new TextArea(); comments.setDisable(true);
 		comments.setWrapText(true);
 		ResultSet result=connectDB.query(sql); 
-		sql="SELECT * FROM food_pictures WHERE food_pictures.userEmail='"+currEmail+"' AND reviews.restaurantName='"+restaurantName+"';";
-		ResultSet images=connectDB.query(sql);
 		String removeSql="DELETE FROM Reviews WHERE Reviews.RestaurantName='"+restaurantName+"';";
 		root.setBottom(buttonHolder);
-		
-		GridPane imageHolder=new GridPane(); 
-		imageHolder.setVgap(10);imageHolder.setHgap(10);
-		imageHolder.setPadding(new Insets(10));
-		
+		Label imagesUploadedL=new Label("Images uploaded by: "+currUserName);
+
 		try
 		{
 			if(result.next()) 
@@ -404,16 +405,68 @@ public class restaurant_main extends Application {
 				comments.setText(result.getString("comments"));
 				reviewInfoHolder.add(ratingScore, 0, 0);reviewInfoHolder.add(numScore, 1, 0);
 				reviewInfoHolder.add(textAreaL, 0, 1);reviewInfoHolder.add(comments, 1, 1);
-				currReviewPage.getChildren().addAll(restaurantL,reviewInfoHolder,buttonHolder);
 				//root.setCenter(currReviewPage);
 			}
+//			root.setCenter(currReviewPage);
+//			currReviewPage.getChildren().addAll(restaurantL,reviewInfoHolder,buttonHolder);
+			
 			
 		}
 		
 		catch(SQLException e)
 		{
 			e.printStackTrace(); 
+		} 
+		//getting pictures if any
+		sql="SELECT * FROM food_pictures WHERE food_pictures.userEmail='"+currEmail+"' AND food_pictures.restaurantName='"+restaurantName+"';";
+		System.out.println(sql);
+		ResultSet images=connectDB.query(sql);
+		ImageView a=null;
+//		GridPane imageHolder=new GridPane(); 
+//		imageHolder.setVgap(10);imageHolder.setHgap(10);
+//		imageHolder.setPadding(new Insets(10));
+		int imageNum=0; 
+		try
+		{
+			while(images.next())
+			{
+				InputStream is=images.getBinaryStream("image");
+				//specific directy where folder stores all restaurant images
+				OutputStream os=new FileOutputStream(new File("C:\\Users\\derek\\git\\restaurant-history\\src\\photos\\photo.jpg"));
+				byte[] imageContent=new byte[1024];
+				int size=0; 
+				while((size=is.read(imageContent)) != -1)//read image in database, write content into os, -1 when is nothing left to read
+				{
+					os.write(imageContent,0,size);
+				}
+				os.close();
+				is.close(); 
+				//now got to display on an image view THIS IS LOCAL DIRECTORY
+				Image pic=new Image("file:C:\\Users\\derek\\git\\restaurant-history\\src\\photos\\photo.jpg");
+				System.out.println("Image loading error? " + pic.exceptionProperty());
+
+				a=new ImageView(pic);
+				a.setFitWidth(100);a.setFitHeight(150);a.setPreserveRatio(true);
+				//imageHolder.add(view, 0, 0);
+			}
+			//root.setCenter(currReviewPage);currReviewPage.getChildren().addAll(restaurantL,reviewInfoHolder,buttonHolder,imagesUploadedL,imageHolder);
+			
 		}
+		
+		catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		root.setCenter(currReviewPage);
+		currReviewPage.getChildren().addAll(restaurantL,reviewInfoHolder,buttonHolder,imagesUploadedL,a);
+		
 		backToReviewsB.setOnAction(event->{
 			root.setCenter(reviewedMenu);
 			root.setBottom(null);
