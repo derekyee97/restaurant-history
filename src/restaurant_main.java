@@ -499,70 +499,7 @@ public class restaurant_main extends Application {
 				e.printStackTrace();
 			}
 		});
-//		editB.setOnAction(event->{ //naviage to edit menu
-//			createEditMenu(restaurantName);
-//		});
 	}
-//	public void createEditMenu(String restaurant)
-//	{
-//		editReview=new VBox(30); 
-//		GridPane menu = new GridPane();
-//		HBox radioBoxes = new HBox(10);
-//		Label restL = new Label("Restaurant Name: ");
-//		TextField restField = new TextField("Please enter the restaurant name here");
-//
-//		Label rateL = new Label("Please check a rating where 1 is the worst, 5 is the best: ");
-//		Button backB=new Button("Cancel"); 
-//		RadioButton one = new RadioButton("1");
-//		RadioButton two = new RadioButton("2");
-//		RadioButton three = new RadioButton("3");
-//		RadioButton four = new RadioButton("4");
-//		RadioButton five = new RadioButton("5");
-//		ToggleGroup radioBoxTog = new ToggleGroup();
-//		int[] rating= {0}; 
-//		one.setToggleGroup(radioBoxTog);
-//		one.setOnAction(e->{rating[0]=1;});
-//		two.setToggleGroup(radioBoxTog);
-//		two.setOnAction(e->{rating[0]=2;});
-//		three.setToggleGroup(radioBoxTog);
-//		three.setOnAction(e->{rating[0]=3;});
-//		four.setToggleGroup(radioBoxTog);
-//		four.setOnAction(e->{rating[0]=4;});
-//		five.setToggleGroup(radioBoxTog);
-//		five.setOnAction(e->{rating[0]=5;});  
-//		       
-//		
-//		radioBoxes.getChildren().addAll(one, two, three, four, five);
-//
-//		Label commentL = new Label("Please enter comments: ");
-//		Label charCount=new Label("0/500"); 
-//		TextArea commentField = new TextArea("Max 500 chars");
-//		VBox commentFieldBox=new VBox(commentField,charCount);
-//		charCount.textProperty().bind(Bindings.length(commentField.textProperty()).asString("String Length: %d"+"/500")); //will show char length of text area as type
-//		commentField.setWrapText(true);  //alows text to go to new line when reach edge
-//		commentField.setTextFormatter(new TextFormatter<String>(change ->  //set max char limit to 500
-//        change.getControlNewText().length() <= 500 ? change : null));
-//
-//		menu.add(restL, 0, 0);
-//		menu.add(restField, 1, 0);
-//		menu.add(rateL, 0, 1);
-//		menu.add(radioBoxes, 1, 1);
-//		menu.add(commentL, 0, 2);
-//		menu.add(commentFieldBox, 1, 2);
-//		menu.setPadding(new Insets(10));
-//		
-//		Button submitReview=new Button("Submit"); 
-//		HBox submitBox=new HBox(10,submitReview); 
-//		editReview.getChildren().addAll(menu,submitBox);
-//		
-//		String query="SELECT * FROM Reviews WHERE userEmail='"+currEmail+"' AND restaurantName='"+restaurant+"'";
-//		ResultSet result=connectDB.query(query); 
-//		root.setCenter(editReview);
-//		
-//		
-//		
-//		
-//	}
 	
 	
 }
