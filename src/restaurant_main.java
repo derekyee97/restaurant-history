@@ -75,10 +75,11 @@ public class restaurant_main extends Application {
 		root.setPadding(new Insets(10)); // set borders within root sectionsn
 		login.setAlignment(Pos.CENTER);
 		Scene myScene = new Scene(root, 1200, 400);
+		myScene.getStylesheets().add("./restaurant.css");
+		primaryStage.setTitle("Restaurant History Application");
 		primary=primaryStage;
 		primaryStage.setScene(myScene);
-		primaryStage.setTitle("Restaurant History");
-		// primaryStage.setFullScreen(true);
+		//primaryStage.setFullScreen(true);
 		primaryStage.show();
 
 		// BUTTON ACTION EVENTS
@@ -422,9 +423,10 @@ public class restaurant_main extends Application {
 		System.out.println(sql);
 		ResultSet images=connectDB.query(sql);
 		ImageView a=null;
-//		GridPane imageHolder=new GridPane(); 
-//		imageHolder.setVgap(10);imageHolder.setHgap(10);
-//		imageHolder.setPadding(new Insets(10));
+		GridPane imageHolder=new GridPane(); 
+		imageHolder.setVgap(10);imageHolder.setHgap(10);
+		imageHolder.setPadding(new Insets(10));
+		int col=0,row=0;
 		int imageNum=0; 
 		try
 		{
@@ -447,9 +449,15 @@ public class restaurant_main extends Application {
 
 				a=new ImageView(pic);
 				a.setFitWidth(100);a.setFitHeight(150);a.setPreserveRatio(true);
-				//imageHolder.add(view, 0, 0);
+				imageHolder.add(a, col, row);
+				col++;
+				if(col%3==0)
+				{
+					col=0;
+					row++; 
+				}
+				
 			}
-			//root.setCenter(currReviewPage);currReviewPage.getChildren().addAll(restaurantL,reviewInfoHolder,buttonHolder,imagesUploadedL,imageHolder);
 			
 		}
 		
@@ -465,7 +473,7 @@ public class restaurant_main extends Application {
 			e.printStackTrace();
 		}
 		root.setCenter(currReviewPage);
-		currReviewPage.getChildren().addAll(restaurantL,reviewInfoHolder,buttonHolder,imagesUploadedL,a);
+		currReviewPage.getChildren().addAll(restaurantL,reviewInfoHolder,buttonHolder,imagesUploadedL,imageHolder);
 		
 		backToReviewsB.setOnAction(event->{
 			root.setCenter(reviewedMenu);
