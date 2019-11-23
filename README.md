@@ -4,6 +4,7 @@ Java application that keeps track of inputted restaurants I have been to, review
 ## Screenshots of the application are listed below.
 
 ### login screen 
+Confirms account information, the registration page checks to see if account not already registered in database.
 ![Image of Sorting Animation](https://github.com/derekyee97/restaurant-history/blob/master/login_restaurant.PNG)
 
 ### main menu
