@@ -1,4 +1,4 @@
-# restaurant-history
+# restaurant-history-application
 Java application that keeps track of inputted restaurants I have been to, reviews, pictures, etc utilizing javaFX for the GUI, and mySQL as the database. 
 
 ## Screenshots of the application are listed below.
