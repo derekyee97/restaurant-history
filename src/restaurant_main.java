@@ -43,10 +43,10 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 public class restaurant_main extends Application {
-	public static void main(String[] args) {
+	public static void main(String[] args)
+	{
 		launch(args);
 	}
-
 	// GLOBAL VARIABLES
 	BorderPane root = new BorderPane(); // will hold everything of our program
 	VBox mainMenu = new VBox(30);
@@ -511,6 +511,4 @@ public class restaurant_main extends Application {
 			}
 		});
 	}
-	
-	
 }
