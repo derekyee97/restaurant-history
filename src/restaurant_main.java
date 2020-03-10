@@ -69,11 +69,9 @@ public class restaurant_main extends Application {
 	public void start(Stage primaryStage) throws Exception 
 	{
 		createLoginMenu(login);
-		
 		createAddVisitMenu(addVisit);
-
 		root.setCenter(login);
-		root.setPadding(new Insets(10)); // set borders within root sectionsn
+		root.setPadding(new Insets(10)); 
 		login.setAlignment(Pos.CENTER);
 		Scene myScene = new Scene(root, 1200, 400);
 		myScene.getStylesheets().add("./restaurant.css");
@@ -168,17 +166,16 @@ public class restaurant_main extends Application {
 		Button submitReview=new Button("Submit"); 
 		HBox submitBox=new HBox(10,submitReview); 
 		
-		
-		
 		submitBox.setAlignment(Pos.CENTER);submitBox.setPadding(new Insets(20));
 		visit.getChildren().addAll(menu,submitBox);
 		menu.setAlignment(Pos.CENTER);
 		visit.setAlignment(Pos.CENTER);
 		menu.setPadding(new Insets(20));
-		menu.setHgap(10); // horizontal gap in pixels
+		menu.setHgap(10); 
 		menu.setVgap(10);
 		
-		submitReview.setOnAction(event->{
+		submitReview.setOnAction(event->
+		{
 			try 
 			{
 
@@ -201,13 +198,15 @@ public class restaurant_main extends Application {
 			}
 			
 		});
-		backB.setOnAction(event->{
+		backB.setOnAction(event->
+		{
 			root.setCenter(mainMenu);
 		});
 	}
 
 	// creation of login allows user to enter their account information
-	public void createLoginMenu(VBox login) {
+	public void createLoginMenu(VBox login) 
+	{
 		login.setAlignment(Pos.CENTER);
 		Label welcomeL = new Label("Welcome to the restaurant history tracker");
 		GridPane loginHolder = new GridPane();
@@ -242,7 +241,8 @@ public class restaurant_main extends Application {
 					+ passField.getText() + "'";
 			
 			currUser = connectDB.query(sqlStatement);
-			try {
+			try 
+			{
 				if (currUser.next()) 
 				{
 					Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -262,7 +262,9 @@ public class restaurant_main extends Application {
 					alert.setHeaderText("UNSUCCESSFULL");
 					alert.showAndWait();
 				}
-			} catch (SQLException e) {
+			} 
+			catch (SQLException e) 
+			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -327,6 +329,7 @@ public class restaurant_main extends Application {
 			
 		});
 	}
+	//creating page to get all reviews posted
 	public void createReviewedMenu(VBox reviewedContainer)
 	{
 		Label reviewL=new Label("Your Reviews: "); 
@@ -335,14 +338,14 @@ public class restaurant_main extends Application {
 		reviewHolder.setHgap(10);reviewHolder.setVgap(10);
 		reviewHolder.setPadding(new Insets(20));
 		reviewHolder.setAlignment(Pos.CENTER);
-		
+		reviewHolder.setPrefWidth(50);
 		try 
 		{
 			String queryUserReviews="Select * FROM reviews where userEmail= '"+currEmail+"'";
 			ResultSet reviews=connectDB.query(queryUserReviews); 
 			int counter=0; 
 			int row=0;
-			Button restaurantNameReview;
+			Button restaurantNameReview;   //creates new button for each review
 			while(reviews.next()) 
 			{
 				restaurantNameReview=new Button(reviews.getString("restaurantName"));
@@ -446,14 +449,13 @@ public class restaurant_main extends Application {
 
 				a=new ImageView(pic);
 				a.setFitWidth(100);a.setFitHeight(150);a.setPreserveRatio(true);
-				imageHolder.add(a, col, row);
+				imageHolder.add(a, col, row); //want 3 pictures a row
 				col++;
 				if(col%3==0)
 				{
 					col=0;
 					row++; 
 				}
-				
 			}
 			
 		}
