@@ -63,10 +63,11 @@ public class restaurant_main extends Application {
 	Button backToMainB=new Button("Back to Main Menu");
 	Stage primary;
 	restaurant_dataBase_Connector connectDB = new restaurant_dataBase_Connector();
-	private ResultSet currUser;
-	private String currEmail,currUserName;
+	ResultSet currUser;
+	String currEmail,currUserName;
 
-	public void start(Stage primaryStage) throws Exception {
+	public void start(Stage primaryStage) throws Exception 
+	{
 		createLoginMenu(login);
 		
 		createAddVisitMenu(addVisit);
@@ -79,14 +80,14 @@ public class restaurant_main extends Application {
 		primaryStage.setTitle("Restaurant History Application");
 		primary=primaryStage;
 		primaryStage.setScene(myScene);
-		//primaryStage.setFullScreen(true);
+		primaryStage.setFullScreen(true);
 		primaryStage.show();
 
-		// BUTTON ACTION EVENTS
-
+		
 	}
 
-	public void createMainMenu(VBox start) {
+	public void createMainMenu(VBox start) 
+	{
 		Label welcome=new Label("Welcome to "+currUserName+"'s Restaurant History");;
 		start.setAlignment(Pos.CENTER);
 		Label selectL = new Label("Please select a button to perform the following actions");
@@ -94,21 +95,23 @@ public class restaurant_main extends Application {
 		startSelections.setAlignment(Pos.CENTER);
 		Button viewB = new Button("View Reviewed Places/Pics");
 		Button addB = new Button("Add new visit");
-		Button addPic = new Button("Add food pic");
-
-		startSelections.getChildren().addAll(viewB, addB, addPic);
+		
+		startSelections.getChildren().addAll(viewB, addB);
 		start.getChildren().addAll(welcome, selectL, startSelections);
 
-		addB.setOnAction(event -> {
+		addB.setOnAction(event -> 
+		{
 			root.setCenter(addVisit);
 			root.setTop(backToMainB);
 		});
-		viewB.setOnAction(event->{
+		viewB.setOnAction(event->
+		{
 			reviewedMenu=new VBox(30);
 			createReviewedMenu(reviewedMenu);
 			root.setCenter(reviewedMenu);
 		});
-		backToMainB.setOnAction(event->{
+		backToMainB.setOnAction(event->
+		{
 			root.setCenter(mainMenu);
 			root.setTop(null);
 		});
@@ -305,8 +308,6 @@ public class restaurant_main extends Application {
 				if(result.next()==false) //if it does not then we let user create account
 				{
 					sql="INSERT INTO login(email,password,firstName,lastName) VALUES ('"+emailBox.getText()+"','"+passBox.getText()+"','"+firstNameBox.getText()+"','"+lastNameBox.getText()+"');";
-					
-					//connectDB.executeStatement(query);
 					connectDB.executeStatement(sql);
 					Alert success=new Alert(AlertType.INFORMATION);
 					success.setContentText("Account creation successfull");
@@ -321,8 +322,7 @@ public class restaurant_main extends Application {
 				}
 			} catch (SQLException e) 
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("Error sql");
 			}
 			
 		});
@@ -336,7 +336,8 @@ public class restaurant_main extends Application {
 		reviewHolder.setPadding(new Insets(20));
 		reviewHolder.setAlignment(Pos.CENTER);
 		
-		try {
+		try 
+		{
 			String queryUserReviews="Select * FROM reviews where userEmail= '"+currEmail+"'";
 			ResultSet reviews=connectDB.query(queryUserReviews); 
 			int counter=0; 
@@ -353,7 +354,8 @@ public class restaurant_main extends Application {
 					row++;
 					counter=0; 
 				}
-				restaurantNameReview.setOnAction(event->{  //create review page and set root center to curr review
+				restaurantNameReview.setOnAction(event->
+				{  //create review page and set root center to curr review
 					createCurrReviewPage(((Button)event.getSource()).getText());
 					root.setTop(null);
 				});
@@ -362,11 +364,12 @@ public class restaurant_main extends Application {
 			reviewedContainer.getChildren().addAll(reviewL,reviewHolder);
 			root.setTop(backMainB);
 			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (SQLException e)
+		{
+			System.out.println("Error sql");
 		}
-		backMainB.setOnAction(event->{
+		backMainB.setOnAction(event->
+		{
 			root.setCenter(mainMenu);
 			root.setTop(null);
 		});
@@ -374,14 +377,13 @@ public class restaurant_main extends Application {
 	}
 	public void createCurrReviewPage(String restaurantName)
 	{
-		//System.out.println("HI "+restaurantName);
 		currReviewPage=new VBox(30); 
 		Button backToReviewsB=new Button("Back to Reviews menu"); 
 		//Button editB=new Button("Edit"); 
 		Button addImage=new Button("Add Image");
 		Button removeB=new Button("Remove review"); 
 		Button addPicture=new Button("Add Pictures"); 
-		HBox buttonHolder=new HBox(10,backToReviewsB,/*editB,*/addImage); 
+		HBox buttonHolder=new HBox(10,backToReviewsB,removeB,addImage); 
 		buttonHolder.setAlignment(Pos.CENTER);buttonHolder.setPadding(new Insets(10));
 		GridPane reviewInfoHolder=new GridPane(); 
 		reviewInfoHolder.setVgap(10);reviewInfoHolder.setHgap(10);
@@ -390,11 +392,11 @@ public class restaurant_main extends Application {
 		Label ratingScore=new Label("Rating Given: ");
 		Label numScore=new Label();
 		String sql="SELECT * FROM reviews WHERE reviews.userEmail='"+currEmail+"' AND reviews.restaurantName='"+restaurantName+"';";
+		String removeSql="DELETE FROM Reviews WHERE Reviews.RestaurantName='"+restaurantName+"';";
 		Label textAreaL=new Label("Comments: ");
 		TextArea comments=new TextArea(); comments.setDisable(true);
 		comments.setWrapText(true);
 		ResultSet result=connectDB.query(sql); 
-		String removeSql="DELETE FROM Reviews WHERE Reviews.RestaurantName='"+restaurantName+"';";
 		root.setBottom(buttonHolder);
 		Label imagesUploadedL=new Label("Images uploaded by: "+currUserName);
 
@@ -406,17 +408,12 @@ public class restaurant_main extends Application {
 				comments.setText(result.getString("comments"));
 				reviewInfoHolder.add(ratingScore, 0, 0);reviewInfoHolder.add(numScore, 1, 0);
 				reviewInfoHolder.add(textAreaL, 0, 1);reviewInfoHolder.add(comments, 1, 1);
-				//root.setCenter(currReviewPage);
-			}
-//			root.setCenter(currReviewPage);
-//			currReviewPage.getChildren().addAll(restaurantL,reviewInfoHolder,buttonHolder);
-			
-			
+				
+			}			
 		}
-		
 		catch(SQLException e)
 		{
-			e.printStackTrace(); 
+			System.out.println("Error with sql statement");
 		} 
 		//getting pictures if any
 		sql="SELECT * FROM food_pictures WHERE food_pictures.userEmail='"+currEmail+"' AND food_pictures.restaurantName='"+restaurantName+"';";
@@ -460,51 +457,57 @@ public class restaurant_main extends Application {
 			}
 			
 		}
-		
-		catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		catch (FileNotFoundException e) 
+		{
+			System.out.println("File not found");
+		} catch (IOException e) 
+		{
 			e.printStackTrace();
 		} 
-		catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		catch (SQLException e) 
+		{
+			System.out.println("Error with sql statement");
 		}
 		root.setCenter(currReviewPage);
 		currReviewPage.getChildren().addAll(restaurantL,reviewInfoHolder,buttonHolder,imagesUploadedL,imageHolder);
 		
-		backToReviewsB.setOnAction(event->{
+		backToReviewsB.setOnAction(event->
+		{
 			root.setCenter(reviewedMenu);
+			root.setTop(backToMainB);
 			root.setBottom(null);
 		});
-		removeB.setOnAction(event->{
+		removeB.setOnAction(event->
+		{
 			connectDB.executeStatement(removeSql);
 			root.setBottom(null);
 			reviewedMenu=new VBox(30);
 			createReviewedMenu(reviewedMenu);
 			root.setCenter(reviewedMenu);
 		});
-		addImage.setOnAction(event->{
+		addImage.setOnAction(event->
+		{
 			FileChooser fileChooser = new FileChooser();
 			FileChooser.ExtensionFilter JPGFilter = new FileChooser.ExtensionFilter("JPG files (*.jpg)", "*.JPG");
             FileChooser.ExtensionFilter PNGFilter = new FileChooser.ExtensionFilter("PNG files (*.png)", "*.PNG");
             fileChooser.getExtensionFilters().addAll(JPGFilter,PNGFilter);
         	File imageFile=fileChooser.showOpenDialog(primary);
-        	try {
+        	try 
+        	{
 				PreparedStatement ps=connectDB.connector.prepareStatement("INSERT INTO food_pictures (userEmail,restaurantName,image) VALUES(?,?,?)");
 				ps.setString(1, currEmail);
 				ps.setString(2, restaurantName);
 				FileInputStream stream=new FileInputStream(imageFile);
 				ps.setBinaryStream(3,stream,(int)imageFile.length());
 				ps.executeUpdate();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} 
+        	catch (SQLException e) 
+        	{
+				System.out.println("Unable to delete"); 
+			}
+        	catch (FileNotFoundException e) 
+        	{
+				System.out.println("File not found");
 			}
 		});
 	}
