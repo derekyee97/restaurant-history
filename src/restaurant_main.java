@@ -265,8 +265,7 @@ public class restaurant_main extends Application {
 			} 
 			catch (SQLException e) 
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("ERror with sql");
 			}
 		});
 		registerLoginB.setOnAction(event->
