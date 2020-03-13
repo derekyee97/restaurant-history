@@ -48,22 +48,17 @@ public class restaurant_main extends Application {
 		launch(args);
 	}
 	// GLOBAL VARIABLES
-	BorderPane root = new BorderPane(); // will hold everything of our program
+	BorderPane root = new BorderPane(); // will all GUI of the program
 	VBox mainMenu = new VBox(30);
 	VBox addVisit = new VBox(30);
 	VBox login = new VBox(30);
 	VBox register=new VBox(30); 
 	VBox reviewedMenu=new VBox(30);
-	VBox currReviewPage=new VBox(30); 
-	VBox addPicture=new VBox(30); 
-	VBox editReview=new VBox(30); 
-	Button submitLoginB = new Button("Submit");
-	Button registerLoginB = new Button("Register");
-	Button submitRegister=new Button("Submit");
+			
 	Button backToMainB=new Button("Back to Main Menu");
-	Stage primary;
+	Stage primary; //used for when need File input 
 	restaurant_dataBase_Connector connectDB = new restaurant_dataBase_Connector();
-	ResultSet currUser;
+	ResultSet currUser;     
 	String currEmail,currUserName;
 
 	public void start(Stage primaryStage) throws Exception 
@@ -73,12 +68,11 @@ public class restaurant_main extends Application {
 		root.setCenter(login);
 		root.setPadding(new Insets(10)); 
 		login.setAlignment(Pos.CENTER);
-		Scene myScene = new Scene(root, 1200, 400);
+		Scene myScene = new Scene(root, 1600, 600);
 		myScene.getStylesheets().add("./restaurant.css");
 		primaryStage.setTitle("Restaurant History Application");
 		primary=primaryStage;
 		primaryStage.setScene(myScene);
-		primaryStage.setFullScreen(true);
 		primaryStage.show();
 
 		
@@ -176,20 +170,34 @@ public class restaurant_main extends Application {
 		
 		submitReview.setOnAction(event->
 		{
+			//grabbing info from user inputted fields
 			try 
-			{
-
-				
-				String sql="INSERT INTO reviews(userEmail,Rating,Comments,Tags,restaurantName) VALUES ('"+currEmail+"',"+
-							rating[0]+",'"+commentField.getText()+"','"+"','"+restField.getText()+"');";
-				connectDB.executeStatement(sql);
-				
-				Alert successA=new Alert(AlertType.INFORMATION);
-				successA.setTitle("Success");successA.setContentText("The review was successfully uploaded!"); 
-				successA.showAndWait(); 
-				restField.setText("Please enter the restaurant name here");
-				commentField.setText("Max 500 chars");
-				root.setCenter(mainMenu);
+			{				
+				String check="SELECT * FROM Reviews WHERE useremail='"+currEmail+"' AND restaurantname='"+restField.getText()+"'";
+				ResultSet dupe=connectDB.query(check);
+				if(dupe.next())
+				{
+					Alert dupeAlert=new Alert(AlertType.ERROR);
+					dupeAlert.setContentText("Already reviewed");
+					dupeAlert.setTitle("Duplicate Review");
+					dupeAlert.showAndWait(); 
+					restField.setText("Please enter the restaurant name here");
+					commentField.setText("Max 500 chars");
+					root.setCenter(mainMenu);
+				}
+				else
+				{				
+					String sql="INSERT INTO reviews(userEmail,Rating,Comments,Tags,restaurantName) VALUES ('"+currEmail+"',"+
+								rating[0]+",'"+commentField.getText()+"','"+"','"+restField.getText()+"');";
+					connectDB.executeStatement(sql);
+					
+					Alert successA=new Alert(AlertType.INFORMATION);
+					successA.setTitle("Success");successA.setContentText("The review was successfully uploaded!"); 
+					successA.showAndWait(); 
+					restField.setText("Please enter the restaurant name here");
+					commentField.setText("Max 500 chars");
+					root.setCenter(mainMenu);
+				}
 				
 			}
 			catch(Exception e)
@@ -228,6 +236,8 @@ public class restaurant_main extends Application {
 
 		HBox loginButtons = new HBox(10);
 		loginButtons.setAlignment(Pos.CENTER);
+		Button submitLoginB = new Button("Submit");
+		Button registerLoginB = new Button("Register");
 		submitLoginB.setMinSize(Button.USE_PREF_SIZE, Button.USE_PREF_SIZE);
 		registerLoginB.setMinSize(Button.USE_PREF_SIZE, Button.USE_PREF_SIZE);
 		final Pane buttonGap = new Pane();
@@ -265,7 +275,7 @@ public class restaurant_main extends Application {
 			} 
 			catch (SQLException e) 
 			{
-				System.out.println("ERror with sql");
+				System.out.println("ERROR with sql");
 			}
 		});
 		registerLoginB.setOnAction(event->
@@ -297,6 +307,7 @@ public class restaurant_main extends Application {
 		registerBox.add(passL, 0, 1);registerBox.add(passBox, 1, 1);
 		registerBox.add(firstNameL, 0, 2);registerBox.add(firstNameBox, 1, 2);
 		registerBox.add(lastNameBoxL, 0, 3);registerBox.add(lastNameBox, 1, 3);
+		Button submitRegister=new Button("Submit");
 		register.getChildren().addAll(registerL,registerBox,submitRegister);
 		
 		submitRegister.setOnAction(event->  //when submit pressed
@@ -379,9 +390,9 @@ public class restaurant_main extends Application {
 	}
 	public void createCurrReviewPage(String restaurantName)
 	{
+		VBox currReviewPage=new VBox(30); 
 		currReviewPage=new VBox(30); 
 		Button backToReviewsB=new Button("Back to Reviews menu"); 
-		//Button editB=new Button("Edit"); 
 		Button addImage=new Button("Add Image");
 		Button removeB=new Button("Remove review"); 
 		Button addPicture=new Button("Add Pictures"); 
@@ -395,6 +406,7 @@ public class restaurant_main extends Application {
 		Label numScore=new Label();
 		String sql="SELECT * FROM reviews WHERE reviews.userEmail='"+currEmail+"' AND reviews.restaurantName='"+restaurantName+"';";
 		String removeSql="DELETE FROM Reviews WHERE Reviews.RestaurantName='"+restaurantName+"';";
+		String removePicsSql="DELETE FROM food_pictures WHERE userEmail='"+currEmail+"' AND food_pictures.restaurantName='"+restaurantName+"'";
 		Label textAreaL=new Label("Comments: ");
 		TextArea comments=new TextArea(); comments.setDisable(true);
 		comments.setWrapText(true);
@@ -419,7 +431,6 @@ public class restaurant_main extends Application {
 		} 
 		//getting pictures if any
 		sql="SELECT * FROM food_pictures WHERE food_pictures.userEmail='"+currEmail+"' AND food_pictures.restaurantName='"+restaurantName+"';";
-		System.out.println(sql);
 		ResultSet images=connectDB.query(sql);
 		ImageView a=null;
 		GridPane imageHolder=new GridPane(); 
@@ -444,7 +455,7 @@ public class restaurant_main extends Application {
 				is.close(); 
 				//now got to display on an image view THIS IS LOCAL DIRECTORY
 				Image pic=new Image("file:C:\\Users\\derek\\git\\restaurant-history\\src\\photos\\photo.jpg");
-				System.out.println("Image loading error? " + pic.exceptionProperty());
+				//System.out.println("Image loading error? " + pic.exceptionProperty());
 
 				a=new ImageView(pic);
 				a.setFitWidth(100);a.setFitHeight(150);a.setPreserveRatio(true);
@@ -468,6 +479,7 @@ public class restaurant_main extends Application {
 		catch (SQLException e) 
 		{
 			System.out.println("Error with sql statement");
+			root.setCenter(mainMenu);
 		}
 		root.setCenter(currReviewPage);
 		currReviewPage.getChildren().addAll(restaurantL,reviewInfoHolder,buttonHolder,imagesUploadedL,imageHolder);
@@ -481,6 +493,8 @@ public class restaurant_main extends Application {
 		removeB.setOnAction(event->
 		{
 			connectDB.executeStatement(removeSql);
+			connectDB.executeStatement(removePicsSql);
+			System.out.println(removePicsSql);
 			root.setBottom(null);
 			reviewedMenu=new VBox(30);
 			createReviewedMenu(reviewedMenu);
@@ -501,6 +515,7 @@ public class restaurant_main extends Application {
 				FileInputStream stream=new FileInputStream(imageFile);
 				ps.setBinaryStream(3,stream,(int)imageFile.length());
 				ps.executeUpdate();
+				createCurrReviewPage(restaurantName);
 			} 
         	catch (SQLException e) 
         	{

@@ -1,8 +1,8 @@
 import java.sql.*; 
 public class restaurant_dataBase_Connector 
 {
-	Connection connector; 
-	Statement statement;
+	 Connection connector; 
+	 Statement statement;
 	public restaurant_dataBase_Connector()
 	{
 		try

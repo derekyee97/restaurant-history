@@ -23,9 +23,7 @@
         -fx-scale-y: 0.9;
         -fx-scale-x: 0.9;
 }
-.root {
-    -fx-background-color: #FFECC9;
-}
+
 .label{
     -fx-font-family: cursive;
     -fx-font-style: italic;
